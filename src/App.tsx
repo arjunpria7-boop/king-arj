@@ -10,9 +10,10 @@ import Disclaimer from './components/Disclaimer';
 import BrowserSupportWarning from './components/BrowserSupportWarning';
 
 const isBrowserSupported = (): boolean => {
-  // Checks for basic ES6 features that are missing in very old browsers (like IE11)
-  // FIX: `Array.prototype.includes` is a function. Use `!!` to cast it to a boolean to match the function's return type.
-  return typeof Promise !== 'undefined' && typeof Symbol !== 'undefined' && !!Array.prototype.includes;
+  // Checks for JavaScript features that were widely supported by browsers in 2021,
+  // such as String.prototype.replaceAll(). This is a more modern check.
+  // FIX: Used the 'in' operator for feature detection to avoid a TypeScript type error on older library targets.
+  return 'replaceAll' in String.prototype;
 };
 
 const App: React.FC = () => {
