@@ -1,4 +1,5 @@
-import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
+import type { GenerateContentResponse } from "@google/genai";
 import type { LotteryType, PredictionResult } from '../types';
 
 const predictionSchema = {

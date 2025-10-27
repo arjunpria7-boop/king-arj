@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { generatePrediction } from './services/geminiService';
 import type { LotteryType, PredictionResult } from './types';
 import Header from './components/Header';
@@ -7,14 +7,6 @@ import PredictionDisplay from './components/PredictionDisplay';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorMessage from './components/ErrorMessage';
 import Disclaimer from './components/Disclaimer';
-import BrowserSupportWarning from './components/BrowserSupportWarning';
-
-const isBrowserSupported = (): boolean => {
-  // Checks for JavaScript features that were widely supported by browsers in 2021,
-  // such as String.prototype.replaceAll(). This is a more modern check.
-  // FIX: Used the 'in' operator for feature detection to avoid a TypeScript type error on older library targets.
-  return 'replaceAll' in String.prototype;
-};
 
 const App: React.FC = () => {
   const [lotteryType] = useState<LotteryType>('4D');
@@ -23,11 +15,6 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<string[]>(['', '', '', '']);
-  const [supported, setSupported] = useState<boolean>(true);
-
-  useEffect(() => {
-    setSupported(isBrowserSupported());
-  }, []);
 
   const handleGenerate = useCallback(async () => {
     setIsLoading(true);
@@ -48,10 +35,6 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   }, [lotteryType, market, lastResult]);
-  
-  if (!supported) {
-    return <BrowserSupportWarning />;
-  }
 
   return (
     <div className="min-h-screen bg-slate-900 font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8">
