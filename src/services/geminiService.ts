@@ -108,6 +108,7 @@ const buildPrompt = (lotteryType: LotteryType, market: string, lastResult?: stri
 };
 
 export const generatePrediction = async (lotteryType: LotteryType, market: string, lastResult?: string[]): Promise<PredictionResult> => {
+  // FIX: Adhering to @google/genai coding guidelines to use process.env.API_KEY directly.
   if (!process.env.API_KEY) {
     throw new Error("Kunci API tidak dikonfigurasi. Pastikan variabel lingkungan API_KEY telah diatur.");
   }
@@ -124,7 +125,11 @@ export const generatePrediction = async (lotteryType: LotteryType, market: strin
       }
     });
 
-    const jsonText = response.text.trim();
+    const jsonText = response.text?.trim();
+    if (!jsonText) {
+      throw new Error("Respons dari AI kosong atau tidak valid.");
+    }
+
     const result = JSON.parse(jsonText);
     
     // Basic validation

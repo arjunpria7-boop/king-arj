@@ -45,7 +45,8 @@ const HistoryInput: React.FC<HistoryInputProps> = ({ value, onChange }) => {
       {value.map((digit, index) => (
         <input
           key={index}
-          ref={(el) => (inputsRef.current[index] = el)}
+          // FIX: The ref callback must not return a value. Wrapped in a block statement to ensure a void return type and fix the type error.
+          ref={(el) => {inputsRef.current[index] = el}}
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"

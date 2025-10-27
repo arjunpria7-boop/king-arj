@@ -9,7 +9,7 @@ import ErrorMessage from './components/ErrorMessage';
 import Disclaimer from './components/Disclaimer';
 
 const App: React.FC = () => {
-  const [lotteryType, setLotteryType] = useState<LotteryType>('4D');
+  const [lotteryType] = useState<LotteryType>('4D');
   const [market, setMarket] = useState<string>('HONGKONG');
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
