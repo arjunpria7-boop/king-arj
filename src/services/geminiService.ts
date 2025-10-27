@@ -125,8 +125,9 @@ export const generatePrediction = async (lotteryType: LotteryType, market: strin
       }
     });
 
-    // FIX: Per @google/genai guidelines, `response.text` is the correct way to access the text content and is not optional on a successful response.
-    const jsonText = response.text.trim();
+    // FIX: Per @google/genai guidelines, `response.text` is the correct way to access the text content.
+    // Added optional chaining (`?.`) to prevent a build error if `response.text` is undefined.
+    const jsonText = response.text?.trim();
     if (!jsonText) {
       throw new Error("Respons dari AI kosong atau tidak valid.");
     }
