@@ -1,5 +1,11 @@
 {
+  "scripts": {
+    "build": "esbuild index.tsx --bundle --outfile=bundle.js --jsx=automatic --minify"
+  },
   "dependencies": {
     "@google/genai": "^1.27.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.23.0"
   }
 }

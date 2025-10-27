@@ -96,7 +96,7 @@
             gap: 0.5rem;
         }
         
-        input[type="text"] {
+        input[type="text"], input[type="tel"] {
             padding: 0.8rem 1rem;
             border-radius: 8px;
             border: 1px solid var(--border-color);
@@ -319,7 +319,6 @@
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
     "react/": "https://aistudiocdn.com/react@^19.2.0/"
   }
 }
@@ -327,6 +326,6 @@
 </head>
 <body>
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script src="/bundle.js" defer></script>
 </body>
 </html>
