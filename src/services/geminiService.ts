@@ -124,11 +124,10 @@ export const generatePrediction = async (lotteryType: LotteryType, market: strin
       }
     });
 
-    const jsonText = response.text?.trim();
-    if (!jsonText) {
-      throw new Error("Respons dari AI kosong atau tidak valid.");
+    if (!response.text) {
+        throw new Error("Respons dari AI kosong atau tidak valid.");
     }
-
+    const jsonText = response.text.trim();
     const result = JSON.parse(jsonText);
     
     // Basic validation
