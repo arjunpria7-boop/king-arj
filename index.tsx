@@ -131,12 +131,21 @@ const App = () => {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ prompt: prompt }),
-                }).then(res => {
+                }).then(async res => {
                     if (!res.ok) {
-                        return res.json().then(err => {
-                           throw new Error(err.error || `Error for ${market}: ${res.statusText}`);
-                        });
+                        // Jika respons tidak OK, baca body sebagai teks untuk mendapatkan pesan error yang sebenarnya
+                        const errorBody = await res.text();
+                        try {
+                            // Coba parse sebagai JSON, karena fungsi server kita mengirim error JSON
+                            const errJson = JSON.parse(errorBody);
+                            throw new Error(errJson.error || `Error for ${market}: ${res.statusText}`);
+                        } catch (e) {
+                            // Jika bukan JSON, kemungkinan besar itu adalah halaman error HTML dari Vercel.
+                            // Tampilkan teks mentah untuk melihat apa yang salah.
+                            throw new Error(errorBody || `Server returned an error: ${res.statusText}`);
+                        }
                     }
+                    // Jika respons OK, seharusnya itu adalah JSON yang valid
                     return res.json();
                 });
             });
