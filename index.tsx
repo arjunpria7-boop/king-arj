@@ -1,6 +1,5 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
-import { GoogleGenAI } from "@google/genai";
 
 const markets = [
     "HONGKONG", "CAMBODIA", "CHINA", "SINGAPORE", "SYDNEY", "TAIWAN",
@@ -23,7 +22,8 @@ const App = () => {
     const [error, setError] = useState('');
     const [copySuccess, setCopySuccess] = useState(false);
 
-    const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.API_KEY as string }), []);
+    // Hapus inisialisasi GoogleGenAI dari sisi client
+    // const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.API_KEY as string }), []);
 
     const today = new Date();
     const displayDate = today.toLocaleDateString('id-ID', {
@@ -124,9 +124,20 @@ const App = () => {
                 13. **Final Output:** Do not output anything else, no explanations, no introductory text, just the final formatted block as shown in the example.
                 `;
 
-                return ai.models.generateContent({
-                    model: "gemini-2.5-flash",
-                    contents: prompt
+                // Panggil "jembatan" API kita di /api/generate
+                return fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: prompt }),
+                }).then(res => {
+                    if (!res.ok) {
+                        return res.json().then(err => {
+                           throw new Error(err.error || `Error for ${market}: ${res.statusText}`);
+                        });
+                    }
+                    return res.json();
                 });
             });
 
@@ -134,9 +145,9 @@ const App = () => {
             const allResults = responses.map(res => res.text.trim()).join('\n\n---\n\n');
             setResult(allResults);
 
-        } catch (err) {
+        } catch (err: any) {
             console.error(err);
-            setError("Terjadi kesalahan saat menghasilkan prediksi. Silakan coba lagi.");
+            setError(err.message || "Terjadi kesalahan saat menghasilkan prediksi. Silakan coba lagi.");
         } finally {
             setLoading(false);
         }
