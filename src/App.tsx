@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { generatePrediction } from './services/geminiService';
 import type { LotteryType, PredictionResult } from './types';
 import Header from './components/Header';
@@ -7,6 +7,13 @@ import PredictionDisplay from './components/PredictionDisplay';
 import LoadingSpinner from './components/LoadingSpinner';
 import ErrorMessage from './components/ErrorMessage';
 import Disclaimer from './components/Disclaimer';
+import BrowserSupportWarning from './components/BrowserSupportWarning';
+
+const isBrowserSupported = (): boolean => {
+  // Checks for basic ES6 features that are missing in very old browsers (like IE11)
+  // FIX: `Array.prototype.includes` is a function. Use `!!` to cast it to a boolean to match the function's return type.
+  return typeof Promise !== 'undefined' && typeof Symbol !== 'undefined' && !!Array.prototype.includes;
+};
 
 const App: React.FC = () => {
   const [lotteryType] = useState<LotteryType>('4D');
@@ -15,6 +22,11 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [lastResult, setLastResult] = useState<string[]>(['', '', '', '']);
+  const [supported, setSupported] = useState<boolean>(true);
+
+  useEffect(() => {
+    setSupported(isBrowserSupported());
+  }, []);
 
   const handleGenerate = useCallback(async () => {
     setIsLoading(true);
@@ -35,6 +47,10 @@ const App: React.FC = () => {
       setIsLoading(false);
     }
   }, [lotteryType, market, lastResult]);
+  
+  if (!supported) {
+    return <BrowserSupportWarning />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8">
