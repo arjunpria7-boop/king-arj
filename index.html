@@ -1,26 +1,332 @@
 <!DOCTYPE html>
-<html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rumus Mas ARJ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script type="importmap">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Togel Number Generator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
+        :root {
+            --background-color: #121212;
+            --surface-color: #1e1e1e;
+            --primary-color: #bb86fc;
+            --primary-variant-color: #3700b3;
+            --secondary-color: #03dac6;
+            --text-color: #e0e0e0;
+            --text-color-secondary: #a0a0a0;
+            --border-color: #333;
+            --success-color: #4caf50;
+            --error-color: #cf6679;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        #root {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .container {
+            background-color: var(--surface-color);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .date-display {
+            text-align: center;
+            color: var(--text-color-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-size: 0.9rem;
+            color: var(--text-color-secondary);
+            margin-bottom: -0.5rem;
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #2c2c2c;
+            color: var(--text-color);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        input[type="text"] {
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #2c2c2c;
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.2s ease-in-out;
+        }
+
+        input::placeholder {
+            color: var(--text-color-secondary);
+            opacity: 0.7;
+        }
+        
+        button:focus, input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(187, 134, 252, 0.2);
+        }
+
+        button#generate-btn {
+            background-color: var(--primary-color);
+            color: #000;
+            font-weight: bold;
+            border: none;
+        }
+        
+        button#generate-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            background-color: #333;
+            color: #777;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 0.75rem;
+            max-height: 250px;
+            overflow-y: auto;
+            background-color: #2c2c2c;
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .market-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .market-item label {
+            color: var(--text-color);
+            cursor: pointer;
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+
+        .market-item input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            min-width: 20px;
+            background-color: #3f3f3f;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border-color);
+            transition: background-color 0.2s;
+        }
+
+        .market-item input[type="checkbox"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .market-item input[type="checkbox"]::after {
+            content: '✔';
+            color: #121212;
+            font-size: 14px;
+            font-weight: bold;
+            display: none;
+        }
+
+        .market-item input[type="checkbox"]:checked::after {
+            display: block;
+        }
+
+        .market-item input[type="checkbox"]:disabled {
+            cursor: not-allowed;
+            background-color: #333;
+        }
+
+        .previous-numbers-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .previous-number-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .previous-number-item label {
+            margin-bottom: 0;
+            font-size: 0.75rem;
+            font-weight: 400;
+            text-transform: uppercase;
+            color: var(--text-color-secondary);
+            text-align: center;
+        }
+
+        .previous-number-item input {
+            width: 100%;
+            text-align: center;
+            padding: 0.7rem 0.5rem;
+        }
+
+        .results {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #2c2c2c;
+            border-radius: 8px;
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 32px;
+            height: 32px;
+            background-color: #3f3f3f;
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            padding: 6px;
+        }
+
+        .copy-btn svg {
+            width: 100%;
+            height: 100%;
+            fill: var(--text-color-secondary);
+        }
+
+        .copy-btn:hover {
+            background-color: #4f4f4f;
+        }
+        
+        .copy-success-msg {
+            position: absolute;
+            top: 1.2rem;
+            right: 3.5rem;
+            background-color: var(--success-color);
+            color: #121212;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+        }
+
+        .copy-success-msg.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader {
+            border: 4px solid var(--border-color);
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-text {
+            white-space: pre-wrap;
+            text-align: left;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: var(--text-color);
+            width: 100%;
+            background-color: #1e1e1e;
+            padding: 1.5rem;
+            border-radius: 6px;
+        }
+
+        .error {
+            color: var(--error-color);
+        }
+    </style>
+<script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.2.0",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.1.0",
-    "vite": "https://aistudiocdn.com/vite@^7.1.12"
+    "react/": "https://aistudiocdn.com/react@^19.2.0/"
   }
 }
 </script>
 </head>
-  <body class="bg-slate-900 text-white">
+<body>
     <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
-  </body>
+    <script type="module" src="/index.tsx"></script>
+</body>
 </html>
