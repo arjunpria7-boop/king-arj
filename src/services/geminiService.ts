@@ -1,4 +1,4 @@
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
 import type { LotteryType, PredictionResult } from '../types';
 
 const predictionSchema = {
@@ -108,14 +108,13 @@ const buildPrompt = (lotteryType: LotteryType, market: string, lastResult?: stri
 };
 
 export const generatePrediction = async (lotteryType: LotteryType, market: string, lastResult?: string[]): Promise<PredictionResult> => {
-  // FIX: Adhering to @google/genai coding guidelines to use process.env.API_KEY directly.
   if (!process.env.API_KEY) {
     throw new Error("Kunci API tidak dikonfigurasi. Pastikan variabel lingkungan API_KEY telah diatur.");
   }
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
   try {
-    const response = await ai.models.generateContent({
+    const response: GenerateContentResponse = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: buildPrompt(lotteryType, market, lastResult),
       config: {
@@ -125,8 +124,6 @@ export const generatePrediction = async (lotteryType: LotteryType, market: strin
       }
     });
 
-    // FIX: Per @google/genai guidelines, `response.text` is the correct way to access the text content.
-    // Added optional chaining (`?.`) to prevent a build error if `response.text` is undefined.
     const jsonText = response.text?.trim();
     if (!jsonText) {
       throw new Error("Respons dari AI kosong atau tidak valid.");
