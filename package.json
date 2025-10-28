@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "esbuild index.tsx --bundle --outfile=bundle.js --jsx=automatic --minify --target=es6"
+    "build": "esbuild index.tsx --bundle --outfile=bundle.js --jsx=automatic --minify --target=es2020"
   },
   "dependencies": {
     "@google/genai": "^1.27.0",
