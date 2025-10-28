@@ -164,9 +164,30 @@ const App = () => {
     
     const handleCopy = () => {
         if (result) {
-            navigator.clipboard.writeText(result);
-            setCopySuccess(true);
-            setTimeout(() => setCopySuccess(false), 2000); // Hide message after 2 seconds
+            // Fallback for older browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = result;
+            
+            // Avoid scrolling to bottom
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    setCopySuccess(true);
+                    setTimeout(() => setCopySuccess(false), 2000);
+                }
+            } catch (err) {
+                console.error('Fallback: Oops, unable to copy', err);
+            }
+
+            document.body.removeChild(textArea);
         }
     };
 
@@ -245,11 +266,7 @@ const App = () => {
 const rootElement = document.getElementById('root');
 if (rootElement) {
     const root = ReactDOM.createRoot(rootElement);
-    root.render(
-        <React.StrictMode>
-            <App />
-        </React.StrictMode>
-    );
+    root.render(<App />);
 } else {
     console.error('Failed to find the root element with id "root"');
 }
