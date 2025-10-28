@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
 const markets = [
@@ -22,14 +22,39 @@ const App = () => {
     const [error, setError] = useState('');
     const [copySuccess, setCopySuccess] = useState(false);
 
-    // Hapus inisialisasi GoogleGenAI dari sisi client
-    // const ai = useMemo(() => new GoogleGenAI({ apiKey: process.env.API_KEY as string }), []);
+    // API Key Management State
+    const [apiKeys, setApiKeys] = useState<string[]>([]);
+    const [selectedApiKey, setSelectedApiKey] = useState<string>('');
+    const [isApiModalOpen, setIsApiModalOpen] = useState(false);
+    const [newApiKey, setNewApiKey] = useState('');
+
+    useEffect(() => {
+        try {
+            const storedKeys = localStorage.getItem('userApiKeys');
+            const storedSelectedKey = localStorage.getItem('selectedApiKey');
+            if (storedKeys) {
+                const parsedKeys = JSON.parse(storedKeys);
+                setApiKeys(parsedKeys);
+                if (!storedSelectedKey && parsedKeys.length > 0) {
+                    setSelectedApiKey(parsedKeys[0]);
+                    localStorage.setItem('selectedApiKey', parsedKeys[0]);
+                }
+            }
+            if (storedSelectedKey) {
+                setSelectedApiKey(storedSelectedKey);
+            }
+        } catch (e) {
+            console.error("Failed to parse API keys from localStorage", e);
+            localStorage.removeItem('userApiKeys');
+            localStorage.removeItem('selectedApiKey');
+        }
+    }, []);
+
 
     const today = new Date();
     const displayDate = today.toLocaleDateString('id-ID', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
-
 
     const handleMarketSelection = (market: string) => {
         const newSelectedMarkets = selectedMarkets.includes(market)
@@ -51,6 +76,12 @@ const App = () => {
     };
 
     const generatePrediction = async () => {
+        if (!selectedApiKey) {
+            setError("Silakan tambahkan dan pilih API Key di menu 'Kelola API Key' untuk memulai.");
+            setIsApiModalOpen(true);
+            return;
+        }
+
         if (selectedMarkets.length === 0 || selectedMarkets.length > 6) {
             setError("Silakan pilih 1 hingga 6 pasaran.");
             return;
@@ -124,28 +155,20 @@ const App = () => {
                 13. **Final Output:** Do not output anything else, no explanations, no introductory text, just the final formatted block as shown in the example.
                 `;
 
-                // Panggil "jembatan" API kita di /api/generate
                 return fetch('/api/generate', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ prompt: prompt }),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt, apiKey: selectedApiKey }),
                 }).then(async res => {
                     if (!res.ok) {
-                        // Jika respons tidak OK, baca body sebagai teks untuk mendapatkan pesan error yang sebenarnya
                         const errorBody = await res.text();
                         try {
-                            // Coba parse sebagai JSON, karena fungsi server kita mengirim error JSON
                             const errJson = JSON.parse(errorBody);
-                            throw new Error(errJson.error || `Error for ${market}: ${res.statusText}`);
+                            throw new Error(errJson.details || errJson.error || `Error for ${market}: ${res.statusText}`);
                         } catch (e) {
-                            // Jika bukan JSON, kemungkinan besar itu adalah halaman error HTML dari Vercel.
-                            // Tampilkan teks mentah untuk melihat apa yang salah.
                             throw new Error(errorBody || `Server returned an error: ${res.statusText}`);
                         }
                     }
-                    // Jika respons OK, seharusnya itu adalah JSON yang valid
                     return res.json();
                 });
             });
@@ -156,7 +179,12 @@ const App = () => {
 
         } catch (err: any) {
             console.error(err);
-            setError(err.message || "Terjadi kesalahan saat menghasilkan prediksi. Silakan coba lagi.");
+            if (err.message && (err.message.includes('429') || /quota|limit/i.test(err.message))) {
+                setError("Kuota API Key saat ini telah habis. Silakan ganti dengan API Key lain di 'Kelola API Key'.");
+                setIsApiModalOpen(true);
+            } else {
+                setError(err.message || "Terjadi kesalahan saat menghasilkan prediksi. Silakan coba lagi.");
+            }
         } finally {
             setLoading(false);
         }
@@ -164,37 +192,105 @@ const App = () => {
     
     const handleCopy = () => {
         if (result) {
-            // Fallback for older browsers
             const textArea = document.createElement("textarea");
             textArea.value = result;
-            
-            // Avoid scrolling to bottom
             textArea.style.top = "0";
             textArea.style.left = "0";
             textArea.style.position = "fixed";
-
             document.body.appendChild(textArea);
             textArea.focus();
             textArea.select();
-
             try {
-                const successful = document.execCommand('copy');
-                if (successful) {
+                if (document.execCommand('copy')) {
                     setCopySuccess(true);
                     setTimeout(() => setCopySuccess(false), 2000);
                 }
             } catch (err) {
                 console.error('Fallback: Oops, unable to copy', err);
             }
-
             document.body.removeChild(textArea);
         }
     };
 
+    // API Key Modal Handlers
+    const handleAddApiKey = () => {
+        if (newApiKey.trim() && !apiKeys.includes(newApiKey.trim())) {
+            const updatedKeys = [...apiKeys, newApiKey.trim()];
+            setApiKeys(updatedKeys);
+            localStorage.setItem('userApiKeys', JSON.stringify(updatedKeys));
+            if (!selectedApiKey) {
+                handleSelectApiKey(newApiKey.trim());
+            }
+            setNewApiKey('');
+        }
+    };
+
+    const handleSelectApiKey = (key: string) => {
+        setSelectedApiKey(key);
+        localStorage.setItem('selectedApiKey', key);
+    };
+
+    const handleDeleteApiKey = (keyToDelete: string) => {
+        const updatedKeys = apiKeys.filter(key => key !== keyToDelete);
+        setApiKeys(updatedKeys);
+        localStorage.setItem('userApiKeys', JSON.stringify(updatedKeys));
+        if (selectedApiKey === keyToDelete) {
+            const newSelected = updatedKeys.length > 0 ? updatedKeys[0] : '';
+            handleSelectApiKey(newSelected);
+        }
+    };
+
+    const ApiKeyModal = () => (
+        <div className="modal-overlay" onClick={() => setIsApiModalOpen(false)}>
+            <div className="modal-content" onClick={e => e.stopPropagation()}>
+                <h2>Kelola API Key</h2>
+                <div className="api-key-input-group">
+                    <input
+                        type="text"
+                        value={newApiKey}
+                        onChange={(e) => setNewApiKey(e.target.value)}
+                        placeholder="Masukkan API Key baru"
+                    />
+                    <button onClick={handleAddApiKey}>Tambah</button>
+                </div>
+                {apiKeys.length > 0 ? (
+                    <ul className="api-key-list">
+                        {apiKeys.map(key => (
+                            <li key={key} className="api-key-item">
+                                <div className="api-key-item-info">
+                                    <input
+                                        type="radio"
+                                        id={key}
+                                        name="apiKey"
+                                        checked={selectedApiKey === key}
+                                        onChange={() => handleSelectApiKey(key)}
+                                    />
+                                    <label htmlFor={key}>{`${key.substring(0, 4)}...${key.substring(key.length - 4)}`}</label>
+                                </div>
+                                <button onClick={() => handleDeleteApiKey(key)}>Hapus</button>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p style={{textAlign: 'center', margin: '1rem 0'}}>Belum ada API Key. Silakan tambahkan satu.</p>
+                )}
+                <div className="modal-footer">
+                    <button onClick={() => setIsApiModalOpen(false)}>Tutup</button>
+                </div>
+            </div>
+        </div>
+    );
+
     return (
         <div className="container">
+            {isApiModalOpen && <ApiKeyModal />}
             <h1>Togel Number Generator</h1>
             <p className="date-display">Prediksi untuk: {displayDate}</p>
+            
+            <button onClick={() => setIsApiModalOpen(true)} className="manage-api-btn">
+                Kelola API Key
+            </button>
+
             <div className="controls">
                 <label>Pilih 1 hingga 6 Pasaran (Terpilih: {selectedMarkets.length})</label>
                 <div className="market-grid">
@@ -235,10 +331,10 @@ const App = () => {
             <button
                 id="generate-btn"
                 onClick={generatePrediction}
-                disabled={loading || selectedMarkets.length < 1 || selectedMarkets.length > 6}
+                disabled={loading || selectedMarkets.length < 1 || selectedMarkets.length > 6 || !selectedApiKey}
             >
-                {loading && <div className="loader" style={{width: '20px', height: '20px', border: '3px solid #333', borderTopColor: '#000'}}></div>}
-                Hasilkan Prediksi
+                {loading && <div className="loader" style={{width: '20px', height: '20px', border: '3px solid #000', borderTopColor: 'transparent'}}></div>}
+                {loading ? 'Menghasilkan...' : 'Hasilkan Prediksi'}
             </button>
 
             <div className="results">
@@ -257,7 +353,7 @@ const App = () => {
                         <pre className="result-text">{result}</pre>
                     </>
                 )}
-                {!loading && !error && !result && <p>Hasil prediksi akan muncul di sini.</p>}
+                {!loading && !error && !result && <p>{!selectedApiKey ? "Silakan tambahkan API Key untuk memulai." : "Hasil prediksi akan muncul di sini."}</p>}
             </div>
         </div>
     );
