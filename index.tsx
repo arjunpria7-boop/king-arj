@@ -124,16 +124,30 @@ const App = () => {
         try {
             const promises = selectedMarkets.map(market => {
                 const previousNumber = previousNumbers[market];
-                const prompt = `You are a lottery prediction AI. Your single task is to fill the provided template with prediction numbers based on the data given.
+                const prompt = `You are a highly precise data-processing AI. Your only function is to populate the provided text template with numbers based on the rules and data given.
+
+**MANDATORY OUTPUT FORMATTING RULES:**
+1.  **NUMBERS ONLY:** All prediction values MUST be composed of digits (0-9) ONLY.
+2.  **NO SEPARATORS:** ABSOLUTELY NO dots (.), commas (,), spaces, or any other characters are allowed within a number.
+    *   CORRECT: \`1234\`
+    *   INCORRECT: \`1.2.3.4\`, \`12 34\`, \`1,234\`
+3.  **TEMPLATE INTEGRITY:** You MUST use the exact template provided. Do not alter, add, or remove any part of the template, including the market name and the date. Your only job is to replace the '...' placeholders with the generated numbers.
 
 **ANALYSIS DATA:**
 *   **Market:** ${market.toUpperCase()}
 *   **Previous Result:** ${previousNumber}
 *   **Formulas:** ${formulas}
 
-**YOUR TASK:**
-Based on your analysis of the data, complete the template below.
-**CRITICAL RULE:** Your output must be ONLY the completed template. Do NOT change the market name or date. Just fill in the numbers where you see '...'.
+**PREDICTION GENERATION RULES:**
+*   **AI (Angka Ikut):** EXACTLY 4 unique digits.
+*   **CN (Colok Naga):** EXACTLY 3 unique digits (derived from AI).
+*   **CB (Colok Bebas):** EXACTLY 1 digit (derived from CN).
+*   **BBFS:** EXACTLY 7 unique, shuffled digits.
+*   **4D:** 4 distinct 4-digit combinations separated by an asterisk (*).
+*   **3D:** 5 distinct 3-digit combinations separated by an asterisk (*).
+*   **2D:** 5 distinct 2-digit combinations separated by an asterisk (*).
+*   **Cadangan (Backup):** 2 distinct 2-digit combinations separated by an asterisk (*).
+*   **TWEN (Twin Numbers):** 2 distinct 2-digit twin number combinations (e.g., 11*22) separated by an asterisk (*).
 
 **TEMPLATE TO COMPLETE:**
 [ ${market.toUpperCase()}
@@ -148,19 +162,7 @@ ${stylizedDateString}
 2𝘿 : ...
 𝚌𝚊𝚍𝚊𝚗𝚐𝚊𝚗 : ...
 𝙏𝙒𝙀𝙉 : ...
-ʲᵃᵈⁱᵏᵃⁿ ᵖᵉʳᵇᵃⁿᵈⁱⁿᵍᵃⁿ- ᵗⁱᵈᵃᵏ ᵃᵈᵃ ʲᵃᵐⁱⁿᵃⁿ ᴶᴾ ¹⁰⁰% ]
-
----
-**NUMBER GENERATION RULES:**
-*   **AI (Angka Ikut):** EXACTLY 4 unique digits.
-*   **CN (Colok Naga):** EXACTLY 3 unique digits (derived from AI).
-*   **CB (Colok Bebas):** EXACTLY 1 digit (derived from CN).
-*   **BBFS:** EXACTLY 7 unique, shuffled digits.
-*   **4D:** 4 distinct 4-digit combinations.
-*   **3D:** 5 distinct 3-digit combinations.
-*   **2D:** 5 distinct 2-digit combinations.
-*   **Cadangan (Backup):** 2 distinct 2-digit combinations.
-*   **TWEN (Twin Numbers):** 2 distinct 2-digit twin number combinations (e.g., 11, 22).`;
+ʲᵃᵈⁱᵏᵃⁿ ᵖᵉʳᵇᵃⁿᵈⁱⁿᵍᵃⁿ- ᵗⁱᵈᵃᵏ ᵃᵈᵃ ʲᵃᵐⁱⁿᵃⁿ ᴶᴾ ¹⁰⁰% ]`;
 
                 return fetch('/api/generate', {
                     method: 'POST',
