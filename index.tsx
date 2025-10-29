@@ -107,53 +107,60 @@ const App = () => {
             Analyze the previous number step-by-step using these formulas. First, identify the tail digit. Then, apply the 'EKOR MATI' and 'AI DR EKOR' formulas for that specific digit. Synthesize the results to generate the prediction.
         `;
 
-        const todayForPrompt = new Date();
-        const dateString = `${todayForPrompt.getDate()} ${todayForPrompt.toLocaleString('id-ID', { month: 'long' })} ${todayForPrompt.getFullYear()}`;
+        const stylizeDate = (date: Date) => {
+            const normal = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            const stylized = '𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣𝟶𝟷𝟸𝟹𝟺𝟻𝟼𝟽𝟾𝟿';
+            const dateString = `${date.getDate()} ${date.toLocaleString('id-ID', { month: 'long' })} ${date.getFullYear()}`;
+            let result = '';
+            for (const char of dateString.toLowerCase()) {
+                const index = normal.indexOf(char);
+                result += (index !== -1) ? stylized[index] : char;
+            }
+            return result;
+        };
+
+        const stylizedDateString = stylizeDate(new Date());
 
         try {
             const promises = selectedMarkets.map(market => {
                 const previousNumber = previousNumbers[market];
-                const prompt = `
-                You are an expert lottery prediction analyst. Your task is to generate a prediction for the market "${market}" for today's date, which is "${dateString}".
+                const prompt = `You are a lottery prediction AI. Your single task is to fill the provided template with prediction numbers based on the data given.
 
-                The previous 4D result for this market was ${previousNumber}.
+**ANALYSIS DATA:**
+*   **Market:** ${market.toUpperCase()}
+*   **Previous Result:** ${previousNumber}
+*   **Formulas:** ${formulas}
 
-                You must use the following formulas and analytical steps to generate the new numbers:
-                ${formulas}
+**YOUR TASK:**
+Based on your analysis of the data, complete the template below.
+**CRITICAL RULE:** Your output must be ONLY the completed template. Do NOT change the market name or date. Just fill in the numbers where you see '...'.
 
-                After your analysis, you must present the result in a single, strictly formatted text block.
-                Follow the example format below precisely, including the special fonts and characters. DO NOT include any instructional text like "(4 digit)" in the final output.
+**TEMPLATE TO COMPLETE:**
+[ ${market.toUpperCase()}
+${stylizedDateString}
 
-                **Example Format (THIS IS HOW THE OUTPUT MUST LOOK):**
-                [ 𝐍𝐀𝐌𝐀 𝐏𝐀𝐒𝐀𝐑𝐀𝐍
-                𝟸𝟽 𝚘𝚔𝚝𝚘𝚋𝚎𝚛 𝟸𝟶𝟸𝟻 
+𝘼𝙄 : ...
+𝘾𝙉 : ...
+𝘾𝘽 : ...
+𝘽𝘽𝙁𝙎 : ...
+4𝘿 : ...
+3𝘿 : ...
+2𝘿 : ...
+𝚌𝚊𝚍𝚊𝚗𝚐𝚊𝚗 : ...
+𝙏𝙒𝙀𝙉 : ...
+ʲᵃᵈⁱᵏᵃⁿ ᵖᵉʳᵇᵃⁿᵈⁱⁿᵍᵃⁿ- ᵗⁱᵈᵃᵏ ᵃᵈᵃ ʲᵃᵐⁱⁿᵃⁿ ᴶᴾ ¹⁰⁰% ]
 
-                𝘼𝙄 : 1234
-                𝘾𝙉 : 123
-                𝘾𝘽 : 1
-                𝘽𝘽𝙁𝙎 : 1234567
-                4𝘿 : 1234*4567*2345*1267
-                3𝘿 : 123*456*712*345*671
-                2𝘿 : 12*23*34*45*56
-                𝚌𝚊𝚍𝚊𝚗𝚐𝚊𝚗 : 56*74
-                𝙏𝙒𝙀𝙉 : 11*88
-                ʲᵃᵈⁱᵏᵃⁿ ᵖᵉʳᵇᵃⁿᵈⁱⁿᵍᵃⁿ- ᵗⁱᵈᵃᵏ ᵃᵈᵃ ʲᵃᵐⁱⁿᵃⁿ ᴶᴾ ¹⁰⁰% ]
-
-                **STRICT OUTPUT RULES (These are instructions for you, DO NOT print them):**
-                1.  **Market Name:** CRITICAL: You must replace "𝐍𝐀𝐌𝐀 𝐏𝐀𝐒𝐀𝐑𝐀𝐍" with the correct market name for this specific request, which is: "${market}".
-                2.  **Date:** You MUST replace the example date with today's date: "${dateString}". You must format it to match the example's aesthetic (e.g., "𝟸𝟺 𝚓𝚞𝚕𝚒 𝟸𝟶𝟸𝟺").
-                3.  **AI (Angka Ikut):** CRITICAL RULE: Must be EXACTLY 4 unique digits.
-                4.  **CN (Colok Naga):** Must be EXACTLY 3 unique digits (derived from AI).
-                5.  **CB (Colok Bebas):** Must be EXACTLY 1 digit (derived from CN).
-                6.  **BBFS:** CRITICAL RULE: Must be EXACTLY 7 unique, shuffled digits.
-                7.  **4D:** You MUST generate EXACTLY 4 distinct 4-digit combinations. **Crucially, these combinations must not be monotonous or simple sequences.** Use your analytical ability to derive these numbers from the AI and BBFS digits, prioritizing combinations you assess as having a high probability of appearing.
-                8.  **3D:** You MUST generate EXACTLY 5 distinct 3-digit combinations. **Avoid simple patterns.** These should be intelligently selected combinations from the AI and BBFS numbers that you assess as strong candidates.
-                9.  **2D:** You MUST generate EXACTLY 5 distinct 2-digit combinations. **Do not create simple sequences (e.g., 12*23*34).** Instead, create varied and strong pairs based on your analysis of the core numbers. **CRITICAL AVOIDANCE RULE:** You must avoid generating "bolak-balik" numbers (reversed pairs) within the same result. For example, if you generate \`13\`, you are forbidden from also generating \`31\`. If you generate \`25\`, you are forbidden from generating \`52\`. You must only show one of the two possibilities in the final set.
-                10. **Cadangan (Backup):** You MUST generate EXACTLY 2 distinct 2-digit combinations. These should also be intelligently derived and not simple sequential numbers.
-                11. **TWEN (Twin Numbers):** You MUST generate EXACTLY 2 distinct 2-digit twin number combinations (e.g., 11, 22, 33). Use your analytical skills to determine which twin numbers have the highest probability of appearing based on your analysis of the previous number and the derived core numbers.
-                12. **Aesthetics:** Pay close attention to the special fonts, spacing, and alignment to ensure the final output is neat, professional, and easy to read, matching the example.
-                13. **Final Output:** Do not output anything else, no explanations, no introductory text, just the final formatted block as shown in the example.
-                `;
+---
+**NUMBER GENERATION RULES:**
+*   **AI (Angka Ikut):** EXACTLY 4 unique digits.
+*   **CN (Colok Naga):** EXACTLY 3 unique digits (derived from AI).
+*   **CB (Colok Bebas):** EXACTLY 1 digit (derived from CN).
+*   **BBFS:** EXACTLY 7 unique, shuffled digits.
+*   **4D:** 4 distinct 4-digit combinations.
+*   **3D:** 5 distinct 3-digit combinations.
+*   **2D:** 5 distinct 2-digit combinations.
+*   **Cadangan (Backup):** 2 distinct 2-digit combinations.
+*   **TWEN (Twin Numbers):** 2 distinct 2-digit twin number combinations (e.g., 11, 22).`;
 
                 return fetch('/api/generate', {
                     method: 'POST',
