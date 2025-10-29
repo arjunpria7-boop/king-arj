@@ -106,20 +106,9 @@ const App = () => {
 
             Analyze the previous number step-by-step using these formulas. First, identify the tail digit. Then, apply the 'EKOR MATI' and 'AI DR EKOR' formulas for that specific digit. Synthesize the results to generate the prediction.
         `;
-
-        const stylizeDate = (date: Date) => {
-            const normal = 'abcdefghijklmnopqrstuvwxyz0123456789';
-            const stylized = '𝚊𝚋𝚌𝚍𝚎𝚏𝚐𝚑𝚒𝚓𝚔𝚕𝚖𝚗𝚘𝚙𝚚𝚛𝚜𝚝𝚞𝚟𝚠𝚡𝚢𝚣𝟶𝟷𝟸𝟹𝟺𝟻𝟼𝟽𝟾𝟿';
-            const dateString = `${date.getDate()} ${date.toLocaleString('id-ID', { month: 'long' })} ${date.getFullYear()}`;
-            let result = '';
-            for (const char of dateString.toLowerCase()) {
-                const index = normal.indexOf(char);
-                result += (index !== -1) ? stylized[index] : char;
-            }
-            return result;
-        };
-
-        const stylizedDateString = stylizeDate(new Date());
+        
+        const today = new Date();
+        const formattedDate = `${today.getDate()} ${today.toLocaleString('id-ID', { month: 'long' })} ${today.getFullYear()}`;
 
         try {
             const promises = selectedMarkets.map(market => {
@@ -151,7 +140,7 @@ const App = () => {
 
 **TEMPLATE TO COMPLETE:**
 [ ${market.toUpperCase()}
-${stylizedDateString}
+${formattedDate}
 
 𝘼𝙄 : ...
 𝘾𝙉 : ...
@@ -294,7 +283,7 @@ ${stylizedDateString}
         <div className="container">
             {isApiModalOpen && <ApiKeyModal />}
             <div className="header-panel">
-                <h1>Hokky Mas ARJ</h1>
+                <h1 className="rainbow-text-animated">Hokky Mas ARJ</h1>
                 <button onClick={() => setIsApiModalOpen(true)} className="manage-password-icon-btn" title="Kelola Password">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                         <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
