@@ -77,7 +77,7 @@ const App = () => {
 
     const generatePrediction = async () => {
         if (!selectedApiKey) {
-            setError("Silakan tambahkan dan pilih API Key di menu 'Kelola API Key' untuk memulai.");
+            setError("Silakan tambahkan dan pilih Password di menu 'Password' untuk memulai.");
             setIsApiModalOpen(true);
             return;
         }
@@ -125,7 +125,7 @@ const App = () => {
                 Follow the example format below precisely, including the special fonts and characters. DO NOT include any instructional text like "(4 digit)" in the final output.
 
                 **Example Format (THIS IS HOW THE OUTPUT MUST LOOK):**
-                [ 𝐇𝐎𝐍𝐆𝐊𝐎𝐍𝐆
+                [ 𝐍𝐀𝐌𝐀 𝐏𝐀𝐒𝐀𝐑𝐀𝐍
                 𝟸𝟽 𝚘𝚔𝚝𝚘𝚋𝚎𝚛 𝟸𝟶𝟸𝟻 
 
                 𝘼𝙄 : 1234
@@ -140,7 +140,7 @@ const App = () => {
                 ʲᵃᵈⁱᵏᵃⁿ ᵖᵉʳᵇᵃⁿᵈⁱⁿᵍᵃⁿ- ᵗⁱᵈᵃᵏ ᵃᵈᵃ ʲᵃᵐⁱⁿᵃⁿ ᴶᴾ ¹⁰⁰% ]
 
                 **STRICT OUTPUT RULES (These are instructions for you, DO NOT print them):**
-                1.  **Market Name:** Replace "HONGKONG" with the correct market name: "${market}".
+                1.  **Market Name:** CRITICAL: You must replace "𝐍𝐀𝐌𝐀 𝐏𝐀𝐒𝐀𝐑𝐀𝐍" with the correct market name for this specific request, which is: "${market}".
                 2.  **Date:** You MUST replace the example date with today's date: "${dateString}". You must format it to match the example's aesthetic (e.g., "𝟸𝟺 𝚓𝚞𝚕𝚒 𝟸𝟶𝟸𝟺").
                 3.  **AI (Angka Ikut):** CRITICAL RULE: Must be EXACTLY 4 unique digits.
                 4.  **CN (Colok Naga):** Must be EXACTLY 3 unique digits (derived from AI).
@@ -180,7 +180,7 @@ const App = () => {
         } catch (err: any) {
             console.error(err);
             if (err.message && (err.message.includes('429') || /quota|limit/i.test(err.message))) {
-                setError("Kuota API Key saat ini telah habis. Silakan ganti dengan API Key lain di 'Kelola API Key'.");
+                setError("Kuota Password saat ini telah habis. Silakan ganti dengan Password lain di menu 'Password'.");
                 setIsApiModalOpen(true);
             } else {
                 setError(err.message || "Terjadi kesalahan saat menghasilkan prediksi. Silakan coba lagi.");
@@ -243,13 +243,13 @@ const App = () => {
     const ApiKeyModal = () => (
         <div className="modal-overlay" onClick={() => setIsApiModalOpen(false)}>
             <div className="modal-content" onClick={e => e.stopPropagation()}>
-                <h2>Kelola API Key</h2>
+                <h2>Kelola Password</h2>
                 <div className="api-key-input-group">
                     <input
                         type="text"
                         value={newApiKey}
                         onChange={(e) => setNewApiKey(e.target.value)}
-                        placeholder="Masukkan API Key baru"
+                        placeholder="Masukkan Password baru"
                     />
                     <button onClick={handleAddApiKey}>Tambah</button>
                 </div>
@@ -272,7 +272,7 @@ const App = () => {
                         ))}
                     </ul>
                 ) : (
-                    <p style={{textAlign: 'center', margin: '1rem 0'}}>Belum ada API Key. Silakan tambahkan satu.</p>
+                    <p style={{textAlign: 'center', margin: '1rem 0'}}>Belum ada Password. Silakan tambahkan satu.</p>
                 )}
                 <div className="modal-footer">
                     <button onClick={() => setIsApiModalOpen(false)}>Tutup</button>
@@ -284,11 +284,13 @@ const App = () => {
     return (
         <div className="container">
             {isApiModalOpen && <ApiKeyModal />}
-            <h1>Togel Number Generator</h1>
+            <div className="header-panel">
+                <h1>Hokky Mas ARJ</h1>
+            </div>
             <p className="date-display">Prediksi untuk: {displayDate}</p>
             
             <button onClick={() => setIsApiModalOpen(true)} className="manage-api-btn">
-                Kelola API Key
+                Password
             </button>
 
             <div className="controls">
@@ -353,7 +355,7 @@ const App = () => {
                         <pre className="result-text">{result}</pre>
                     </>
                 )}
-                {!loading && !error && !result && <p>{!selectedApiKey ? "Silakan tambahkan API Key untuk memulai." : "Hasil prediksi akan muncul di sini."}</p>}
+                {!loading && !error && !result && <p>{!selectedApiKey ? "Silakan tambahkan Password untuk memulai." : "Hasil Akan Muncul Disini"}</p>}
             </div>
         </div>
     );

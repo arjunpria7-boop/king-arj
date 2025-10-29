@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
   const keyToUse = apiKey || process.env.API_KEY;
 
   if (!keyToUse) {
-    return res.status(400).json({ error: 'API key not provided. Please add an API key in the application settings.' });
+    return res.status(400).json({ error: 'Password not provided. Please add a password in the application settings.' });
   }
 
   try {
