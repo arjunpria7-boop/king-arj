@@ -286,12 +286,13 @@ const App = () => {
             {isApiModalOpen && <ApiKeyModal />}
             <div className="header-panel">
                 <h1>Hokky Mas ARJ</h1>
+                <button onClick={() => setIsApiModalOpen(true)} className="manage-password-icon-btn" title="Kelola Password">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path d="M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H17v4h4v-4h2v-4H12.65zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
+                    </svg>
+                </button>
             </div>
             <p className="date-display">Prediksi untuk: {displayDate}</p>
-            
-            <button onClick={() => setIsApiModalOpen(true)} className="manage-api-btn">
-                Password
-            </button>
 
             <div className="controls">
                 <label>Pilih 1 hingga 6 Pasaran (Terpilih: {selectedMarkets.length})</label>
