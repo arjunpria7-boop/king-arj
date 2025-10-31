@@ -21,6 +21,7 @@ const App = () => {
     const [result, setResult] = useState('');
     const [error, setError] = useState('');
     const [copySuccess, setCopySuccess] = useState(false);
+    const [predictionDate, setPredictionDate] = useState(new Date());
 
     // API Key Management State
     const [apiKeys, setApiKeys] = useState<string[]>([]);
@@ -51,8 +52,7 @@ const App = () => {
     }, []);
 
 
-    const today = new Date();
-    const displayDate = today.toLocaleDateString('id-ID', {
+    const displayDate = predictionDate.toLocaleDateString('id-ID', {
         weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
     });
 
@@ -73,6 +73,26 @@ const App = () => {
         if (/^\d*$/.test(value) && value.length <= 4) {
             setPreviousNumbers(prev => ({ ...prev, [market]: value }));
         }
+    };
+    
+    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const dateString = e.target.value;
+        if (dateString) {
+            const [year, month, day] = dateString.split('-').map(num => parseInt(num, 10));
+            setPredictionDate(new Date(year, month - 1, day));
+        }
+    };
+
+    const formatDateForInput = (date: Date) => {
+        const d = new Date(date);
+        let month = '' + (d.getMonth() + 1);
+        let day = '' + d.getDate();
+        const year = d.getFullYear();
+
+        if (month.length < 2) month = '0' + month;
+        if (day.length < 2) day = '0' + day;
+
+        return [year, month, day].join('-');
     };
 
     const generatePrediction = async () => {
@@ -107,8 +127,7 @@ const App = () => {
             Analyze the previous number step-by-step using these formulas. First, identify the tail digit. Then, apply the 'EKOR MATI' and 'AI DR EKOR' formulas for that specific digit. Synthesize the results to generate the prediction.
         `;
         
-        const today = new Date();
-        const formattedDate = `${today.getDate()} ${today.toLocaleString('id-ID', { month: 'long' })} ${today.getFullYear()}`;
+        const formattedDate = `${predictionDate.getDate()} ${predictionDate.toLocaleString('id-ID', { month: 'long' })} ${predictionDate.getFullYear()}`;
 
         try {
             const promises = selectedMarkets.map(market => {
@@ -291,6 +310,16 @@ ${formattedDate}
                 </button>
             </div>
             <p className="date-display">Prediksi untuk: {displayDate}</p>
+
+            <div className="date-input-container">
+                 <label htmlFor="prediction-date">Ubah Tanggal Prediksi</label>
+                 <input
+                     type="date"
+                     id="prediction-date"
+                     value={formatDateForInput(predictionDate)}
+                     onChange={handleDateChange}
+                 />
+            </div>
 
             <div className="controls">
                 <label>Pilih 1 hingga 6 Pasaran (Terpilih: {selectedMarkets.length})</label>
