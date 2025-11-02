@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -121,10 +122,7 @@ const App = () => {
             POLA RUMUSAN EKOR MATI Unsur Ekor mati dari Angka ekor harian :
             0=4.5 | 1=7.8 | 2=6.9 | 3=5.7 | 4=7.8 | 5=6.8 | 6=8.9 | 7=4.9 | 8=6.7 | 9=2.7
 
-            RUMUS AI DR EKOR:
-            0–359-264 kmt 0178 | 1–397-046 kmt 1258 | 2–157-068 kmt 2349 | 3–579-286 kmt 0134 | 4–357-026 kmt 1489 | 5–179-408 kmt 2356 | 6–179-208 kmt 3456 | 7–319-206 kmt 4578 | 8–531-024 kmt 6789 | 9–357-048 kmt 1269
-
-            Analyze the previous number step-by-step using these formulas. First, identify the tail digit. Then, apply the 'EKOR MATI' and 'AI DR EKOR' formulas for that specific digit. Synthesize the results to generate the prediction.
+            Analyze the previous number step-by-step using this formula. First, identify the tail digit. Then, apply the 'EKOR MATI' formula for that specific digit. Synthesize the results to generate the prediction.
         `;
         
         const formattedDate = `${predictionDate.getDate()} ${predictionDate.toLocaleString('id-ID', { month: 'long' })} ${predictionDate.getFullYear()}`;
